@@ -290,6 +290,27 @@ const PutConfigSchema = {
 
 }
 
+const GetBEIVersionSchema = {
+    schema: {
+        description: 'Muestra la version del componente BEI',
+        tags: ['BEI-Configuration'],
+        headers: {
+            type: 'object',
+            properties: {
+                apiKey: { type: 'string' }
+            },
+            required: [
+                'apiKey'
+            ]
+        },
+        security: [
+            {
+                "apiKey": [process.env.APIKEY]
+            }
+        ]
+    }
+}
+
 module.exports = {
     GetListConfigSchema,
     PostConfigSchema,
@@ -299,4 +320,5 @@ module.exports = {
     PostMetaDataSchema,
     PutMetaDataSchema,
     DeleteMetadataSchema,
+    GetBEIVersionSchema,
 }

@@ -1,0 +1,17 @@
+version: "3"
+services:
+  bei-mongo:
+    image: "g6flow-bei-oracledb"
+    ports:
+      - "9448:9448"
+    volumes:
+      - ./data:/usr/bei/data
+      - ./certs:/usr/bei/certs
+    environment:
+      BEI_COMPONENT: BEI-ORACLE
+      IP: 0.0.0.0
+      PORT: 9448
+      CACHE_TTL: 5000
+      LOG_LEVEL: debug
+      APIKEY: as8da7sda6sd4as45ds67d7s7da9s090gf
+      API_PREFIX: /bei-demo

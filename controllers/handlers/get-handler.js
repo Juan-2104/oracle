@@ -4,10 +4,11 @@ const logger = require('../../utils/bei-logger');
 const beiConfigs = require('../../data/config.json')
 // Configuración del pool de conexiones.
 const pool = require('./connection-pool');
-const OracleDB = require('oracledb');
+const oracledb = require('oracledb');
+const {ValidaAPIKey, NotAuthorizedError} = require('../../utils/secutils');
 
-function GetFields(fields){
-    return fields?fields:'*'
+function GetFields(fields) {
+    return fields ? fields : '*'
 }
 
 /**
@@ -15,22 +16,33 @@ function GetFields(fields){
  * @param {*} filter 
  */
 function GetFilter(filter) {
-    return filter?`where ${filter}`:''
+    return filter ? `where ${filter}` : ''
 }
 
 module.exports = async function GetHandler(req, reply) {
     try {
+        await ValidaAPIKey(req)
         logger.debug(`Entrando al GET de la tabla ${JSON.stringify(req.routeConfig.table)}`)
         logger.debug(`Conectando a la base de datos`)
-        const dbclient = await pool.getConnection();
-        let results = await dbclient.execute(`select ${GetFields(req.query.fields)} from ${req.routeConfig.table} ${GetFilter(req.query.filter)}`)
-        logger.debug(`Ejecución de la consulta, EXITOSA. Filas obtenidas: ${results.rowsAffected.length}`)
-        dbclient.release()
+        const dbclient = await oracledb.getConnection();
+        let results = await dbclient.execute(`select ${GetFields(req.query.fields)} from "${req.routeConfig.dbschema}"."${req.routeConfig.table}" ${GetFilter(req.query.filter)}`)
+        logger.debug(`Ejecución de la consulta, EXITOSA. Filas obtenidas: ${results.rows.length}`)
+        dbclient.release();
+        // Para llenar los nombres de los campos de la tabla.
+        const columnNames = results.metaData.map(column => column.name);
+        let output = [];
+        for (const row of results.rows) {
+            const rowData = {};
+            columnNames.forEach((colName, index) => {
+                rowData[colName] = row[index];
+            });
+            output.push(rowData);
+        }
         reply.code(200)
-        reply.send(results.recordset)
+        reply.send(output)
     } catch (error) {
         logger.error(`GetHandler::Ocurrio un error al intentar la operación:: ${error.message}`)
-        reply.code(500)
+        reply.code(error.status?error.status:500)
         reply.send({
             errorMessage: error.message
         })

@@ -1,10 +1,10 @@
 const dotenv = require('dotenv');
 const logger = require('../utils/bei-logger')
 dotenv.config();
-const { PostConfig, GetListConfig, PutConfig, DeleteConfig, GetMetadata, PostMetadata, PutMetadata, DeleteMetadata } = require("../controllers/config/configs");
+const { PostConfig, GetListConfig, PutConfig, DeleteConfig, GetMetadata, PostMetadata, PutMetadata, DeleteMetadata, GetBEIVersion } = require("../controllers/config/configs");
 const { PostAes256Crypto, PostAes256DeCrypto, PostHashMD5, PostHashSha256 } = require("../controllers/config/data-hashinhg");
 const HealthCheck = require("../controllers/config/healthcheck-controller");
-const { PostConfigSchema, PutConfigSchema, DeleteConfigSchema, GetListConfigSchema, GetMetadataSchema, PostMetaDataSchema, PutMetaDataSchema, DeleteMetadataSchema } = require("../schemas/config-schema");
+const { PostConfigSchema, PutConfigSchema, DeleteConfigSchema, GetListConfigSchema, GetMetadataSchema, PostMetaDataSchema, PutMetaDataSchema, DeleteMetadataSchema, GetBEIVersionSchema } = require("../schemas/config-schema");
 const { GetHealthSchema, PostAES256CrytoSchema, PostAES256DeCrytoSchema, PostHashMD5Schema, PostHasSHA56Schema } = require("../schemas/data-hashing-schema");
 
 // Configuración de las rutas de configuración del BEI
@@ -20,5 +20,6 @@ module.exports = async function (fastify, options, done) {
     // Servicios de gestión de la metadata del componente.
     fastify.get('/metadata',GetMetadataSchema,GetMetadata)
     fastify.post('/metadata',PostMetaDataSchema,PostMetadata)
+    fastify.get('/beiversion', GetBEIVersionSchema, GetBEIVersion)
     done();
 }

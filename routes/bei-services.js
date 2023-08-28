@@ -61,9 +61,24 @@ module.exports = async function (fastify, options, done) {
                     handler: SelectHandler(method),
                     config: { 
                         table: table.name, 
-                        identifier: table.identifier 
+                        identifier: table.identifier,
+                        dbschema: table.dbschema?table.dbschema:metadata.user
                     }
                 }
+                route.schema['headers'] = {
+                    type: 'object',
+                    properties: {
+                        apiKey: { type: 'string' }
+                    },
+                    required: [
+                        'apiKey'
+                    ]
+                },
+                route.schema['security'] = [
+                    {
+                        "apiKey": [process.env.APIKEY]
+                    }
+                ]
                 fastify.route(route)
             })
         })
